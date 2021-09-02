@@ -80,6 +80,7 @@ class PolicyNet:
         valid_actions = board.get_valid_move_pos()
         valid_actions_index = [pos[0]*self.board_size + pos[1] for pos in valid_actions]
         act_probs = act_probs.detach().numpy().flatten()
+        value = value.detach().numpy()[0][0]
         return valid_actions, act_probs[valid_actions_index], value
 
     def collect_temp_data(self, board, actions_index, act_probs):

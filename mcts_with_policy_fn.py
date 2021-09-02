@@ -157,10 +157,10 @@ class MCTS_WITH_POLICY:
             while node is not None:
                 node.update(result)
                 node = node.parent
-            # result = -result
+                # result = -result
             # node.update_recursion(result) # junxiaosong的更新方法，从根结点开始更新
-        if queue != None:
-            queue.put(root)
+        # print(root)
+        queue.put(root)
 
     def simulation_parallel(self, board):
         print("policy mcts parallel simulation")
