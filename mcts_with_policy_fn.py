@@ -103,10 +103,9 @@ class MCTS_WITH_POLICY:
             #     result = 0
             # else:
             #     result = 1 if board_copy.get_game_result() == current_player else -1
-            while node is not None:
-                node.update(result)
-                node = node.parent
-        # 模拟结束后，返回所有actions和其对应的概率
+            ## result需要变符号更新
+            node.update_recursion(-result)
+        # 模拟结束后，返回所有actions和其对应的概率, 为训练神经网络
         actions_and_visits = [(action[0]*board.board_size+action[1], node.n_visits) for action, node in self.root.children.items()]
         actions_index, act_visits = zip(*actions_and_visits)
         act_probs = softmax(act_visits)
@@ -134,6 +133,8 @@ class MCTS_WITH_POLICY:
             actions, act_probs, result = self.policy_func(board_copy)
             if board_copy.get_game_result() == board_copy.RESULT_NOT_OVER:
                 ## 扩展出所有子结点
+                # 使用神经网络得到各valid action的概率, 并预测出result
+                # 这样就不再使用rollout的方式随机选取结点得到result
                 for action, prob in zip(actions, act_probs):
                     node.add_child(action, prob)
             # 如果当前已经是结束状态
@@ -154,10 +155,7 @@ class MCTS_WITH_POLICY:
             #     # if board_copy.get_turn() == board_copy.CELL_
             #     board_copy.move(random.choice(valid_actions))
             # update
-            while node is not None:
-                node.update(result)
-                node = node.parent
-                # result = -result
+            node.update_recursion(-result)
             # node.update_recursion(result) # junxiaosong的更新方法，从根结点开始更新
         # print(root)
         queue.put(root)
@@ -196,7 +194,7 @@ class MCTS_WITH_POLICY:
         # max_root = max(sub_root_list, key=lambda root:root.n_wins)
         # self.root = max_root
 
-        # 模拟结束后，返回所有actions和其对应的概率
+        # 模拟结束后，返回所有actions和其对应的概率， 为训练神经网络
         actions_and_visits = [(action[0]*board.board_size+action[1], node.n_visits) for action, node in self.root.children.items()]
         actions_index, act_visits = zip(*actions_and_visits)
         act_probs = softmax(act_visits)
