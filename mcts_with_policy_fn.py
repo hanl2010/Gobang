@@ -131,32 +131,33 @@ class MCTS_WITH_POLICY:
                 action, node = node.select_child(c_param)
                 board_copy.move(action)
             # expand
+            actions, act_probs, result = self.policy_func(board_copy)
             if board_copy.get_game_result() == board_copy.RESULT_NOT_OVER:
                 ## 扩展出所有子结点
-                # valid_actions = board_copy.get_valid_move_pos()
-                # probs = np.ones(shape=(len(valid_actions),)) / len(valid_actions)
-                actions, act_probs = self.policy_func(board_copy)
                 for action, prob in zip(actions, act_probs):
                     node.add_child(action, prob)
+            # 如果当前已经是结束状态
+            else:
+                if board_copy.get_game_result() == board_copy.RESULT_DRAW:
+                    result = 0
+                else:
+                    result = 1 if board_copy.get_game_result() == current_player else -1
 
+            # 使用神经网路预测rollout的结果，rollout不再使用
             # rollout 实际上是从扩展结点的父节点开始往下执行
             # 可以到游戏结束，也可以规定最多执行n次
-            while board_copy.get_game_result() == board_copy.RESULT_NOT_OVER:
-            # for _ in range(100):
-            #     if board_copy.get_game_result() != board_copy.RESULT_NOT_OVER:
-            #         break
-                valid_actions = board_copy.get_valid_move_pos()
-                # if board_copy.get_turn() == board_copy.CELL_
-                board_copy.move(random.choice(valid_actions))
+            # while board_copy.get_game_result() == board_copy.RESULT_NOT_OVER:
+            # # for _ in range(100):
+            # #     if board_copy.get_game_result() != board_copy.RESULT_NOT_OVER:
+            # #         break
+            #     valid_actions = board_copy.get_valid_move_pos()
+            #     # if board_copy.get_turn() == board_copy.CELL_
+            #     board_copy.move(random.choice(valid_actions))
             # update
-            if board_copy.get_game_result() == board_copy.RESULT_DRAW:
-                result = 0
-            else:
-                result = 1 if board_copy.get_game_result() == current_player else -1
             while node is not None:
                 node.update(result)
                 node = node.parent
-                # result = -result
+            # result = -result
             # node.update_recursion(result) # junxiaosong的更新方法，从根结点开始更新
         if queue != None:
             queue.put(root)
