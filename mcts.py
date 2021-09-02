@@ -91,9 +91,10 @@ class MCTS:
                 result = 0
             else:
                 result = 1 if board_copy.get_game_result() == current_player else -1
-            while node is not None:
-                node.update(result)
-                node = node.parent
+            # while node is not None:
+            #     node.update(result)
+            #     node = node.parent
+            node.update_recursion(-result) #从根结点开始更新
         end = time.time()
         print("Task runs %.2fs" % (end - start))
 
@@ -138,11 +139,10 @@ class MCTS:
                 result = 0
             else:
                 result = 1 if board_copy.get_game_result() == current_player else -1
-            while node is not None:
-                node.update(result)
-                node = node.parent
-                # result = -result
-            # node.update_recursion(result) # junxiaosong的更新方法，从根结点开始更新
+            # while node is not None:
+            #     node.update(result)
+            #     node = node.parent
+            node.update_recursion(-result) #从根结点开始更新
         if queue != None:
             queue.put(root)
 
