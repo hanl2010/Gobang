@@ -176,7 +176,7 @@ class Board:
         return '-'
 
     def print_board(self):
-        board_as_string = "--------------------\n"
+        board_as_string = "------------------------\n"
         for row in range(self.board_size):
             for col in range(self.board_size):
                 symbol = self.get_symbol(self.board[row][col])
@@ -184,7 +184,7 @@ class Board:
                     board_as_string += f" {symbol} \n"
                 else:
                     board_as_string += f" {symbol}"
-        board_as_string += "--------------------\n"
+        board_as_string += "-----------------------\n"
         print(board_as_string)
 
 
