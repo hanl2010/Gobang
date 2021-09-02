@@ -137,9 +137,9 @@ if __name__ == '__main__':
         results.append(result)
 
         if i%50 == 0:
-            game.policy_network.save_model("current_policy.model")
+            game.policy_network.save_model("current_policy_multiprocess.model")
             win_ratio = game.evaluate(game.network_play, game.mcts_play)
             if win_ratio > best_win_ratio:
-                game.policy_network.save_model("best_policy_{}_{}.model".format(11,5))
+                game.policy_network.save_model("best_policy_{}_{}_multiprocess.model".format(11,5))
 
 
