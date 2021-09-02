@@ -13,7 +13,7 @@ class Game:
     def __init__(self, board_size=15, n_dots=5, board_show=False):
         self.board = Board(board_size=board_size, n_dots=n_dots)
         self.board_show = board_show
-        self.policy_network = PolicyNet(board_size=board_size, use_gpu=False, model_file="saved_model/best_policy_11_5.model")
+        self.policy_network = PolicyNet(board_size=board_size, use_gpu=False, model_file=None)
         self.screen_size = (640, 640)
         self.evaluate_times = 10
 
