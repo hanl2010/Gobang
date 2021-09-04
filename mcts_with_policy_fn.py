@@ -4,6 +4,7 @@ import random
 import os
 from multiprocessing import Pool, Manager
 import time
+from collections import deque
 
 def softmax(x):
     a = np.exp(x)
@@ -66,11 +67,13 @@ class MCTS_WITH_POLICY:
         self.n_rollout = n_rollout
         self.policy_func = policy_func
 
-    def simulation(self, board):
+    def simulation(self, board, pygame=None):
         print("policy mcts simulation", end=" ")
         start = time.time()
         for i in range(self.n_rollout):
             # print("simulation times:", i)
+            if pygame!=None:
+                pygame.event.get()
             if i%10 == 0:
                 print(".", end="")
             node = self.root
@@ -99,12 +102,18 @@ class MCTS_WITH_POLICY:
             #     valid_actions = board_copy.get_valid_move_pos()
             #     board_copy.move(random.choice(valid_actions))
             ## update
-            # if board_copy.get_game_result() == board_copy.RESULT_DRAW:
-            #     result = 0
-            # else:
-            #     result = 1 if board_copy.get_game_result() == current_player else -1
-            ## result需要变符号更新
-            node.update_recursion(-result)
+            # 从下往上，把路径上的结点全部暂存到list中
+            node_list = deque()
+            while node is not None:
+                node_list.append(node)
+                node = node.parent
+            # 再从上往下更新，保证第二层结点的值与result的值一致，因为此时current_player要根据子结点的值，来选取动作
+            node_list.reverse()  # 从后往前扫描，即从根结点开始
+            for node in node_list:
+                result = -result
+                node.update(result)
+            ## 递归方法不能保证传入的值与根结点的值一致
+            # node.update_recursion(-result)
         # 模拟结束后，返回所有actions和其对应的概率, 为训练神经网络
         actions_and_visits = [(action[0]*board.board_size+action[1], node.n_visits) for action, node in self.root.children.items()]
         actions_index, act_visits = zip(*actions_and_visits)
@@ -145,17 +154,19 @@ class MCTS_WITH_POLICY:
                     result = 1 if board_copy.get_game_result() == current_player else -1
 
             # 使用神经网路预测rollout的结果，rollout不再使用
-            # rollout 实际上是从扩展结点的父节点开始往下执行
-            # 可以到游戏结束，也可以规定最多执行n次
-            # while board_copy.get_game_result() == board_copy.RESULT_NOT_OVER:
-            # # for _ in range(100):
-            # #     if board_copy.get_game_result() != board_copy.RESULT_NOT_OVER:
-            # #         break
-            #     valid_actions = board_copy.get_valid_move_pos()
-            #     # if board_copy.get_turn() == board_copy.CELL_
-            #     board_copy.move(random.choice(valid_actions))
+
             # update
-            node.update_recursion(-result)
+            # 从下往上，把路径上的结点全部暂存到list中
+            node_list = deque()
+            while node is not None:
+                node_list.append(node)
+                node = node.parent
+            # 再从上往下更新，保证第二层结点的值与result的值一致，因为此时current_player要根据子结点的值，来选取动作
+            node_list.reverse()  # 从后往前扫描，即从根结点开始
+            for node in node_list:
+                result = -result
+                node.update(result)
+            ## 递归方法不能保证传入的值与根结点的值一致
             # node.update_recursion(result) # junxiaosong的更新方法，从根结点开始更新
         # print(root)
         queue.put(root)
