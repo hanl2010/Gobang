@@ -5,6 +5,7 @@ import random
 import os
 from multiprocessing import Pool, Manager
 import time
+from collections import deque
 
 # sys.setrecursionlimit(10000)
 
@@ -16,13 +17,16 @@ class Node:
         self.n_visits = 0.0
         self.P = prior_prob
         self.Q = 0.0
+        self.U = 0.0
 
     def select_child(self, c_param):
         return max(self.children.items(), key=lambda action_node : action_node[1].get_UCB_value(c_param))
 
     def get_UCB_value(self, c_param):
-        return self.Q + c_param*self.P*np.sqrt(self.parent.n_visits)/(1+self.n_visits)
+        self.U = c_param*self.P*np.sqrt(self.parent.n_visits)/(1+self.n_visits)
+        return self.Q + self.U
         # return self.Q + np.sqrt(2*np.log(self.parent.n_visits)/(1+self.n_visits))
+        # return self.Q
 
     def add_child(self, action, prob):
         if action not in self.children:
@@ -36,6 +40,7 @@ class Node:
 
     def update_recursion(self, result):
         # If it is not root, this node's parent should be updated first.
+        # 递归方法不能保证根结点的值与传入的值一致
         if self.parent:
             self.parent.update_recursion(-result)
         self.update(result)
@@ -53,7 +58,9 @@ class Node:
             return False
 
     def __repr__(self):
-        return "[n_children:" + str(len(self.children)) + " W/V:" + str(self.n_wins) + "/" + str(self.n_visits) + "]"
+        return "(n_children:" + str(len(self.children)) +\
+               " W/V:" + str(self.n_wins) + "/" + str(self.n_visits) + \
+               " U:" + str(self.U) + ")"
 
 
 
@@ -63,10 +70,12 @@ class MCTS:
         self.c_param = c_param
         self.n_rollout = n_rollout
 
-    def simulation(self, board):
+    def simulation(self, board, pygame=None):
         print("pure msts simulation")
         start = time.time()
         for i in range(self.n_rollout):
+            if pygame!=None:
+                pygame.event.get()
             if i%10 == 0:
                 print(".", end="")
             node = self.root
@@ -91,10 +100,19 @@ class MCTS:
                 result = 0
             else:
                 result = 1 if board_copy.get_game_result() == current_player else -1
-            # while node is not None:
-            #     node.update(result)
-            #     node = node.parent
-            node.update_recursion(-result) #从根结点开始更新
+            # 从下往上，把路径上的结点全部暂存到list中
+            node_list = deque()
+            while node is not None:
+                node_list.append(node)
+                node = node.parent
+            # 再从上往下更新，保证第二层结点的值与result的值一致，因为此时current_player要根据子结点的值，来选取动作
+            node_list.reverse() # 从后往前扫描，即从根结点开始
+            for node in node_list:
+                result = -result
+                node.update(result)
+
+            ## 递归方法不能保证传入的值与根结点的值一致
+            # node.update_recursion(-result) #从根结点开始更新
         end = time.time()
         print("Task runs %.2fs" % (end - start))
 
@@ -139,10 +157,18 @@ class MCTS:
                 result = 0
             else:
                 result = 1 if board_copy.get_game_result() == current_player else -1
-            # while node is not None:
-            #     node.update(result)
-            #     node = node.parent
-            node.update_recursion(-result) #从根结点开始更新
+            # 从下往上，把路径上的结点全部暂存到list中
+            node_list = deque()
+            while node is not None:
+                node_list.append(node)
+                node = node.parent
+            # 再从上往下更新，保证第二层结点的值与result的值一致，因为此时current_player要根据子结点的值，来选取动作
+            node_list.reverse()  # 从后往前扫描，即从根结点开始
+            for node in node_list:
+                result = -result
+                node.update(result)
+            ## 递归方法不能保证传入的值与根结点的值一致
+            # node.update_recursion(-result) #从根结点开始更新
         if queue != None:
             queue.put(root)
 
@@ -189,6 +215,28 @@ class MCTS:
 
     def get_move(self):
         return max(self.root.children.items(), key=lambda action_node: action_node[1].n_visits)[0]
+
+    def print_tree(self):
+        node = (None, self.root)
+        queue = []
+        level = 0
+        current_level = 0
+        queue.append({level:node})
+        while(len(queue)!=0):
+            level_node = queue.pop(0).popitem()
+            node = level_node[1]
+            level = level_node[0]
+            if current_level != level:
+                print("-----------------------------------------------------------")
+                current_level = level
+            print(current_level, node)
+            for child in node[1].children.items():
+                queue.append({level+1:child})
+
+    def print_first_level_node(self):
+        for action, node in self.root.children.items():
+            print(action, node)
+
 
 
 
