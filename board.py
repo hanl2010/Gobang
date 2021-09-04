@@ -1,4 +1,4 @@
-# import pygame
+import pygame
 import numpy as np
 
 
@@ -100,73 +100,73 @@ class Board:
         else:
             return self.CELL_WHITE
 
-    # def draw_board(self, screen, screen_size):
-    #     # 给窗口填充颜色
-    #     screen.fill(color=(125, 95, 24))
-    #
-    #     self.h_grid_size = screen_size[0] // (self.board_size + 1)
-    #     self.w_grid_size = screen_size[1] // (self.board_size + 1)
-    #     # 画棋盘
-    #     for index in range(self.board_size + 1):
-    #         pygame.draw.line(screen,
-    #                          self.black_color,
-    #                          start_pos=(self.h_grid_size, index * self.w_grid_size),
-    #                          end_pos=(screen_size[0] - self.h_grid_size, index * self.w_grid_size),
-    #                          width=1)
-    #         pygame.draw.line(screen,
-    #                          self.black_color,
-    #                          start_pos=(index * self.h_grid_size, self.w_grid_size),
-    #                          end_pos=(index * self.h_grid_size, screen_size[1] - self.w_grid_size),
-    #                          width=1)
-    #     # 给棋盘加外框
-    #     pygame.draw.rect(screen,
-    #                      self.black_color,
-    #                      (self.h_grid_size - 4, self.w_grid_size - 4, screen_size[0] - 2 * self.h_grid_size + 8,
-    #                       screen_size[1] - 2 * self.w_grid_size + 8),
-    #                      width=3)
-    #     # 在棋盘上标出几个特殊点
-    #     pygame.draw.circle(screen, self.black_color, center=(screen_size[0] // 2, screen_size[1] // 2), radius=5,
-    #                        width=0)
-    #     pygame.draw.circle(screen, self.black_color, center=(screen_size[0] // 4, screen_size[1] // 4), radius=5,
-    #                        width=0)
-    #     pygame.draw.circle(screen, self.black_color, center=(screen_size[0] // 4, screen_size[1] * 3 // 4), radius=5,
-    #                        width=0)
-    #     pygame.draw.circle(screen, self.black_color, center=(screen_size[0] * 3 // 4, screen_size[1] // 4), radius=5,
-    #                        width=0)
-    #     pygame.draw.circle(screen, self.black_color, center=(screen_size[0] * 3 // 4, screen_size[1] * 3 // 4),
-    #                        radius=5, width=0)
-    #     pygame.display.flip()
-    #
-    # def draw_piece(self, screen):
-    #     # # 绘制棋子时，step已经在move中发生了变化，此时get_turn获取到的是下一步的执棋者，
-    #     # # 因此当前棋子的颜色 与get_turn的值相反
-    #     # color = self.white_color if self.get_turn() == self.CELL_BLACK else self.black_color
-    #     # pos = [40 * (col + 1), 40 * (row + 1)]
-    #     # pygame.draw.circle(screen, color=color, center=pos, radius=18, width=0)
-    #     # 绘制棋子
-    #     text = pygame.font.Font("C:\\Windows\\Fonts\\simsun.ttc", 50)
-    #
-    #     for row in range(self.board_size):
-    #         for col in range(self.board_size):
-    #             if self.board[row][col] != self.CELL_EMPTY:
-    #                 color = self.black_color if self.board[row][col] == self.CELL_BLACK else self.white_color
-    #                 pos = [self.h_grid_size*(col+1), self.w_grid_size*(row+1)]
-    #                 pygame.draw.circle(screen, color=color, center=pos, radius=18, width=0)
-    #
-    #     result = self.get_game_result()
-    #     result_text = ""
-    #     if result == self.RESULT_DRAW:
-    #         print("平局")
-    #         result_text = "平局"
-    #     elif result == self.RESULT_WHITE_WIN:
-    #         print("白棋胜")
-    #         result_text = "白棋胜"
-    #     elif result == self.RESULT_BLACK_WIN:
-    #         print("黑棋胜")
-    #         result_text = "黑棋胜"
-    #     text_fmt = text.render(result_text, True, (255, 0, 0))
-    #     screen.blit(text_fmt, (300, 200))
-    #     pygame.display.flip()
+    def draw_board(self, screen, screen_size):
+        # 给窗口填充颜色
+        screen.fill(color=(125, 95, 24))
+
+        self.h_grid_size = screen_size[0] // (self.board_size + 1)
+        self.w_grid_size = screen_size[1] // (self.board_size + 1)
+        # 画棋盘
+        for index in range(self.board_size + 1):
+            pygame.draw.line(screen,
+                             self.black_color,
+                             start_pos=(self.h_grid_size, index * self.w_grid_size),
+                             end_pos=(screen_size[0] - self.h_grid_size, index * self.w_grid_size),
+                             width=1)
+            pygame.draw.line(screen,
+                             self.black_color,
+                             start_pos=(index * self.h_grid_size, self.w_grid_size),
+                             end_pos=(index * self.h_grid_size, screen_size[1] - self.w_grid_size),
+                             width=1)
+        # 给棋盘加外框
+        pygame.draw.rect(screen,
+                         self.black_color,
+                         (self.h_grid_size - 4, self.w_grid_size - 4, screen_size[0] - 2 * self.h_grid_size + 8,
+                          screen_size[1] - 2 * self.w_grid_size + 8),
+                         width=3)
+        # 在棋盘上标出几个特殊点
+        pygame.draw.circle(screen, self.black_color, center=(screen_size[0] // 2, screen_size[1] // 2), radius=5,
+                           width=0)
+        pygame.draw.circle(screen, self.black_color, center=(screen_size[0] // 4, screen_size[1] // 4), radius=5,
+                           width=0)
+        pygame.draw.circle(screen, self.black_color, center=(screen_size[0] // 4, screen_size[1] * 3 // 4), radius=5,
+                           width=0)
+        pygame.draw.circle(screen, self.black_color, center=(screen_size[0] * 3 // 4, screen_size[1] // 4), radius=5,
+                           width=0)
+        pygame.draw.circle(screen, self.black_color, center=(screen_size[0] * 3 // 4, screen_size[1] * 3 // 4),
+                           radius=5, width=0)
+        pygame.display.flip()
+
+    def draw_piece(self, screen):
+        # # 绘制棋子时，step已经在move中发生了变化，此时get_turn获取到的是下一步的执棋者，
+        # # 因此当前棋子的颜色 与get_turn的值相反
+        # color = self.white_color if self.get_turn() == self.CELL_BLACK else self.black_color
+        # pos = [40 * (col + 1), 40 * (row + 1)]
+        # pygame.draw.circle(screen, color=color, center=pos, radius=18, width=0)
+        # 绘制棋子
+        text = pygame.font.Font("C:\\Windows\\Fonts\\simsun.ttc", 50)
+
+        for row in range(self.board_size):
+            for col in range(self.board_size):
+                if self.board[row][col] != self.CELL_EMPTY:
+                    color = self.black_color if self.board[row][col] == self.CELL_BLACK else self.white_color
+                    pos = [self.h_grid_size*(col+1), self.w_grid_size*(row+1)]
+                    pygame.draw.circle(screen, color=color, center=pos, radius=18, width=0)
+
+        result = self.get_game_result()
+        result_text = ""
+        if result == self.RESULT_DRAW:
+            print("平局")
+            result_text = "平局"
+        elif result == self.RESULT_WHITE_WIN:
+            print("白棋胜")
+            result_text = "白棋胜"
+        elif result == self.RESULT_BLACK_WIN:
+            print("黑棋胜")
+            result_text = "黑棋胜"
+        text_fmt = text.render(result_text, True, (255, 0, 0))
+        screen.blit(text_fmt, (300, 200))
+        pygame.display.flip()
 
     def get_symbol(self, cell):
         if cell == self.CELL_BLACK:
@@ -176,7 +176,7 @@ class Board:
         return '-'
 
     def print_board(self):
-        board_as_string = "------------------------\n"
+        board_as_string = "-----------------------\n"
         for row in range(self.board_size):
             for col in range(self.board_size):
                 symbol = self.get_symbol(self.board[row][col])
