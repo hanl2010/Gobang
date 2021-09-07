@@ -68,14 +68,12 @@ class MCTS_WITH_POLICY:
         self.policy_func = policy_func
 
     def simulation(self, board, pygame=None):
-        print("policy mcts simulation", end=" ")
+        print("policy mcts simulation ......", end=" ")
         start = time.time()
         for i in range(self.n_rollout):
             # print("simulation times:", i)
             if pygame!=None:
                 pygame.event.get()
-            if i%10 == 0:
-                print(".", end="")
             node = self.root
             board_copy = copy.deepcopy(board)
             current_player = board_copy.get_turn()
@@ -125,8 +123,6 @@ class MCTS_WITH_POLICY:
 
     def simulation_subprocess(self, board, root, queue, simulation_times, c_param):
         for i in range(simulation_times):
-            if i%10 == 0:
-                print(".", end="")
             node = root
             board_copy = copy.deepcopy(board)
             current_player = board_copy.get_turn()
@@ -172,7 +168,7 @@ class MCTS_WITH_POLICY:
         queue.put(root)
 
     def simulation_parallel(self, board):
-        print("policy mcts parallel simulation")
+        print("policy mcts parallel simulation ......", end="")
         start = time.time()
         processes_count = os.cpu_count() - 2
         pool = Pool(processes_count)
