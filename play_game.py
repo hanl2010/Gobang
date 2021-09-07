@@ -46,7 +46,8 @@ class Game:
 
     def mcts_play(self):
         mcts = MCTS(c_param=5, n_rollout=2000)
-        mcts.simulation(self.board)
+        actions_index, actions_prob = mcts.simulation(self.board)
+        self.policy_network.collect_temp_data(self.board, actions_index, actions_prob)
         action = mcts.get_move()
         # mcts.print_first_level_node()
         print("pure mcts action", action)
@@ -59,7 +60,7 @@ class Game:
         # action_index = np.argmax(act_probs)
         # self.board.move(actions[action_index])
         ## 2. 使用神经网络 和 MCST 模拟若干次，通过MCST得到action probability
-        mcts = MCTS_WITH_POLICY(policy_func=self.policy_network.get_policy_value, c_param=1, n_rollout=500)
+        mcts = MCTS_WITH_POLICY(policy_func=self.policy_network.get_policy_value, c_param=5, n_rollout=500)
         actions_index, act_probs = mcts.simulation(self.board)
         # actions_index, act_probs = mcts.simulation_parallel(self.board) # 并行方法有问题
         self.policy_network.collect_temp_data(board=self.board, actions_index=actions_index, act_probs=act_probs)
@@ -138,20 +139,22 @@ class Game:
 
 
 if __name__ == '__main__':
-    game = Game(board_size=7, n_dots=4, board_show=True)
+    board_size = 9
+    n_dots = 5
+    game = Game(board_size=board_size, n_dots=n_dots, board_show=True)
     results = []
     i = 0
     best_win_ratio = 0
-    use_network = False
+    use_network = True
     while True:
         i += 1
-        result = game.play_game(game.mcts_play, game.mcts_play, i, results, use_network=use_network)
+        result = game.play_game(game.network_play, game.mcts_play, i, results, use_network=use_network)
         results.append(result)
 
         if i%50 == 0 and use_network==True:
             game.policy_network.save_model("current_policy_multiprocess.model")
             win_ratio = game.evaluate(game.network_play, game.mcts_play)
             if win_ratio > best_win_ratio:
-                game.policy_network.save_model("best_policy_{}_{}_multiprocess.model".format(11,5))
+                game.policy_network.save_model("best_policy_{}_{}_multiprocess.model".format(board_size,n_dots))
 
 
