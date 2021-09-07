@@ -9,6 +9,10 @@ from collections import deque
 
 # sys.setrecursionlimit(10000)
 
+def softmax(x):
+    a = np.exp(x)
+    return a/sum(a)
+
 class Node:
     def __init__(self, parent, prior_prob):
         self.parent = parent
@@ -71,13 +75,11 @@ class MCTS:
         self.n_rollout = n_rollout
 
     def simulation(self, board, pygame=None):
-        print("pure msts simulation")
+        print("pure msts simulation ......", end="")
         start = time.time()
         for i in range(self.n_rollout):
             if pygame!=None:
                 pygame.event.get()
-            if i%10 == 0:
-                print(".", end="")
             node = self.root
             board_copy = copy.deepcopy(board)
             current_player = board_copy.get_turn()
@@ -113,13 +115,19 @@ class MCTS:
 
             ## 递归方法不能保证传入的值与根结点的值一致
             # node.update_recursion(-result) #从根结点开始更新
+
+        # 模拟结束后，返回所有actions和其对应的概率, 为训练神经网络
+        actions_and_visits = [(action[0] * board.board_size + action[1], node.n_visits) for action, node in
+                              self.root.children.items()]
+        actions_index, act_visits = zip(*actions_and_visits)
+        act_probs = softmax(act_visits)
+
         end = time.time()
         print("Task runs %.2fs" % (end - start))
+        return list(actions_index), act_probs
 
     def simulation_subprocess(self, board, root, queue, simulation_times, c_param):
         for i in range(simulation_times):
-            if i%10 == 0:
-                print(".", end="")
             node = root
             board_copy = copy.deepcopy(board)
             current_player = board_copy.get_turn()
@@ -173,7 +181,7 @@ class MCTS:
             queue.put(root)
 
     def simulation_parallel(self, board):
-        print("pure mcst parallel simulation")
+        print("pure mcst parallel simulation ......", end="")
         start = time.time()
         processes_count = os.cpu_count() - 2
         pool = Pool(processes_count)
