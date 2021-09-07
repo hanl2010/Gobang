@@ -16,6 +16,9 @@ class Net(nn.Module):
         self.conv1 = nn.Conv2d(in_channels=4, out_channels=32, kernel_size=3, padding=1)
         self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, padding=1)
         self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, padding=1)
+        self.batch_normal_1 = nn.BatchNorm2d(num_features=32)
+        self.batch_normal_2 = nn.BatchNorm2d(num_features=64)
+        self.batch_normal_3 = nn.BatchNorm2d(num_features=128)
 
         # action policy layers
         self.act_conv1 = nn.Conv2d(in_channels=128, out_channels=4, kernel_size=1)
@@ -28,9 +31,9 @@ class Net(nn.Module):
         self.val_fc2 = nn.Linear(64, 1)
 
     def forward(self, state_input):
-        x = F.relu(self.conv1(state_input))
-        x = F.relu(self.conv2(x))
-        x = F.relu(self.conv3(x))
+        x = F.relu(self.batch_normal_1(self.conv1(state_input)))
+        x = F.relu(self.batch_normal_2(self.conv2(x)))
+        x = F.relu(self.batch_normal_3(self.conv3(x)))
 
         x_act = F.relu(self.act_conv1(x))
         x_act = torch.flatten(x_act, start_dim=1)
