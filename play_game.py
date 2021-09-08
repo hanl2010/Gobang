@@ -8,13 +8,14 @@ from neural_network import PolicyNet
 import numpy as np
 import sys
 import time
+import math
 
 
 class Game:
-    def __init__(self, board_size=15, n_dots=5, board_show=False):
+    def __init__(self, board_size=15, n_dots=5, model_file=None, board_show=False):
         self.board = Board(board_size=board_size, n_dots=n_dots)
         self.board_show = board_show
-        self.policy_network = PolicyNet(board_size=board_size, use_gpu=False, model_file=None)
+        self.policy_network = PolicyNet(board_size=board_size, use_gpu=False, model_file=model_file)
         self.screen_size = (640, 640)
         self.evaluate_times = 10
 
@@ -62,6 +63,7 @@ class Game:
         ## 2. 使用神经网络 和 MCST 模拟若干次，通过MCST得到action probability
         mcts = MCTS_WITH_POLICY(policy_func=self.policy_network.get_policy_value, c_param=5, n_rollout=500)
         actions_index, act_probs = mcts.simulation(self.board)
+        # print(act_probs)
         # actions_index, act_probs = mcts.simulation_parallel(self.board) # 并行方法有问题
         self.policy_network.collect_temp_data(board=self.board, actions_index=actions_index, act_probs=act_probs)
         action = mcts.get_move()
@@ -128,7 +130,10 @@ class Game:
         if use_network:
             self.policy_network.calc_and_collect_final_data(result)
             ## train network
-            self.policy_network.train()
+            losses = self.policy_network.train()
+            print("loss: {}".format(np.mean(losses)))
+            if math.isnan(np.mean(losses)):
+                sys.exit()
         # 等待X秒之后，重置棋盘
         time.sleep(2)
         ## reset board
@@ -141,17 +146,17 @@ class Game:
 if __name__ == '__main__':
     board_size = 9
     n_dots = 5
-    game = Game(board_size=board_size, n_dots=n_dots, board_show=True)
+    game = Game(board_size=board_size, n_dots=n_dots, model_file="saved_model/current_policy_multiprocess.model", board_show=True)
     results = []
     i = 0
     best_win_ratio = 0
     use_network = True
     while True:
         i += 1
-        result = game.play_game(game.network_play, game.mcts_play, i, results, use_network=use_network)
+        result = game.play_game(game.network_play, game.network_play, i, results, use_network=use_network)
         results.append(result)
 
-        if i%50 == 0 and use_network==True:
+        if i%10 == 0 and use_network==True:
             game.policy_network.save_model("current_policy_multiprocess.model")
             win_ratio = game.evaluate(game.network_play, game.mcts_play)
             if win_ratio > best_win_ratio:
