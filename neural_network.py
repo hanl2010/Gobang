@@ -143,8 +143,9 @@ class PolicyNet:
         for epoch in range(self.epochs):
             print("epoch {}/{}".format(epoch, self.epochs))
             loss = self.train_once()
+            print("loss:", loss)
             losses.append(loss)
-        print("loss: {}".format(np.mean(losses)))
+        return losses
 
     def save_model(self, model_name):
         model_path = "saved_model"
