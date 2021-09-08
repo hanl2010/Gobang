@@ -7,7 +7,7 @@ import time
 from collections import deque
 
 def softmax(x):
-    a = np.exp(x)
+    a = np.exp(x - np.max(x))
     return a/sum(a)
 
 
