@@ -143,7 +143,7 @@ class Game:
 if __name__ == '__main__':
     board_size = 9
     n_dots = 5
-    game = Game(board_size=board_size, n_dots=n_dots, model_file="saved_model/current_policy_multiprocess.model", board_show=True)
+    game = Game(board_size=board_size, n_dots=n_dots, model_file="saved_model/current_policy.model", board_show=True)
     results = []
     i = 0
     best_win_ratio = 0
@@ -154,9 +154,9 @@ if __name__ == '__main__':
         results.append(result)
 
         if i%10 == 0 and use_network==True:
-            game.policy_network.save_model("current_policy_multiprocess.model")
+            game.policy_network.save_model("current_policy.model")
             win_ratio = game.evaluate(game.network_play, game.mcts_play)
             if win_ratio > best_win_ratio:
-                game.policy_network.save_model("best_policy_{}_{}_multiprocess.model".format(board_size,n_dots))
+                game.policy_network.save_model("best_policy_{}_{}.model".format(board_size,n_dots))
 
 
