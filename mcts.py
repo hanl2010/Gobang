@@ -10,7 +10,7 @@ from collections import deque
 # sys.setrecursionlimit(10000)
 
 def softmax(x):
-    a = np.exp(x)
+    a = np.exp(x - np.max(x))
     return a/sum(a)
 
 class Node:
