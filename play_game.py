@@ -8,7 +8,6 @@ from neural_network import PolicyNet
 import numpy as np
 import sys
 import time
-import math
 
 
 class Game:
@@ -131,9 +130,7 @@ class Game:
             self.policy_network.calc_and_collect_final_data(result)
             ## train network
             losses = self.policy_network.train()
-            print("loss: {}".format(np.mean(losses)))
-            if math.isnan(np.mean(losses)):
-                sys.exit()
+            print("avg_loss: {}".format(np.mean(losses)))
         # 等待X秒之后，重置棋盘
         time.sleep(2)
         ## reset board
