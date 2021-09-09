@@ -5,6 +5,8 @@ import numpy as np
 from collections import deque
 import random
 import os
+import math
+import sys
 
 
 class Net(nn.Module):
@@ -135,7 +137,13 @@ class PolicyNet:
         loss = probs_loss + value_loss
         loss.backward()
         self.optimizer.step()
-        return loss.detach().cpu().numpy()
+        loss_numpy = loss.detach().cpu().numpy()
+        # 如果出现loss为nan 的情况，则停止程序，并输出训练数据，以便检查
+        if math.isnan(loss_numpy):
+            print(batch_data)
+            sys.exit()
+
+        return loss_numpy
 
     def train(self):
         print("training ...........")
